@@ -8245,6 +8245,107 @@ var _elm_lang$html$Html_Attributes$classList = function (list) {
 };
 var _elm_lang$html$Html_Attributes$style = _elm_lang$virtual_dom$VirtualDom$style;
 
+var _elm_lang$html$Html_Events$keyCode = A2(_elm_lang$core$Json_Decode_ops[':='], 'keyCode', _elm_lang$core$Json_Decode$int);
+var _elm_lang$html$Html_Events$targetChecked = A2(
+	_elm_lang$core$Json_Decode$at,
+	_elm_lang$core$Native_List.fromArray(
+		['target', 'checked']),
+	_elm_lang$core$Json_Decode$bool);
+var _elm_lang$html$Html_Events$targetValue = A2(
+	_elm_lang$core$Json_Decode$at,
+	_elm_lang$core$Native_List.fromArray(
+		['target', 'value']),
+	_elm_lang$core$Json_Decode$string);
+var _elm_lang$html$Html_Events$defaultOptions = _elm_lang$virtual_dom$VirtualDom$defaultOptions;
+var _elm_lang$html$Html_Events$onWithOptions = _elm_lang$virtual_dom$VirtualDom$onWithOptions;
+var _elm_lang$html$Html_Events$on = _elm_lang$virtual_dom$VirtualDom$on;
+var _elm_lang$html$Html_Events$onFocus = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'focus',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onBlur = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'blur',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onSubmitOptions = _elm_lang$core$Native_Utils.update(
+	_elm_lang$html$Html_Events$defaultOptions,
+	{preventDefault: true});
+var _elm_lang$html$Html_Events$onSubmit = function (msg) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'submit',
+		_elm_lang$html$Html_Events$onSubmitOptions,
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onCheck = function (tagger) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'change',
+		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetChecked));
+};
+var _elm_lang$html$Html_Events$onInput = function (tagger) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'input',
+		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetValue));
+};
+var _elm_lang$html$Html_Events$onMouseOut = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseout',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseOver = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseover',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseLeave = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseleave',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseEnter = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseenter',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseUp = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseup',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseDown = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mousedown',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onDoubleClick = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'dblclick',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onClick = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'click',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$Options = F2(
+	function (a, b) {
+		return {stopPropagation: a, preventDefault: b};
+	});
+
 //import Dict, List, Maybe, Native.Scheduler //
 
 var _evancz$elm_http$Native_Http = function() {
@@ -8611,26 +8712,26 @@ var _user$project$Types$Config = F3(
 	function (a, b, c) {
 		return {refresh_seconds: a, http_host: b, http_port: c};
 	});
-var _user$project$Types$TogglePlaying = {ctor: 'TogglePlaying'};
-var _user$project$Types$CallFail = function (a) {
-	return {ctor: 'CallFail', _0: a};
+var _user$project$Types$Test = {ctor: 'Test'};
+var _user$project$Types$Command = function (a) {
+	return {ctor: 'Command', _0: a};
 };
 var _user$project$Types$CallSucceed = F2(
 	function (a, b) {
 		return {ctor: 'CallSucceed', _0: a, _1: b};
 	});
+var _user$project$Types$CallFail = function (a) {
+	return {ctor: 'CallFail', _0: a};
+};
 var _user$project$Types$Tick = function (a) {
 	return {ctor: 'Tick', _0: a};
 };
 
 var _user$project$Api$update = F3(
-	function (command, data, model) {
+	function (command, response, model) {
 		var _p0 = command;
 		if (_p0 === '-x status') {
-			return A2(
-				_elm_lang$core$Debug$log,
-				A2(_elm_lang$core$Basics_ops['++'], 'Right -- ', data),
-				model);
+			return model;
 		} else {
 			return model;
 		}
@@ -8649,14 +8750,44 @@ var _user$project$Api$url = function (config) {
 };
 var _user$project$Api$call = F2(
 	function (config, command) {
-		var decoder = _elm_lang$core$Json_Decode$string;
-		var body = _evancz$elm_http$Http$string(command);
-		var the_url = _user$project$Api$url(config);
-		return A3(
+		var request = {
+			verb: 'POST',
+			url: _user$project$Api$url(config),
+			body: _evancz$elm_http$Http$string(command),
+			headers: _elm_lang$core$Native_List.fromArray(
+				[])
+		};
+		var settings = _elm_lang$core$Native_Utils.update(
+			_evancz$elm_http$Http$defaultSettings,
+			{timeout: 4});
+		var task = A2(_evancz$elm_http$Http$send, settings, request);
+		var cmd = A3(
 			_elm_lang$core$Task$perform,
 			_user$project$Types$CallFail,
 			_user$project$Types$CallSucceed(command),
-			A5(_elm_lang$core$Debug$log, 'call.', _evancz$elm_http$Http$post, decoder, the_url, body));
+			task);
+		return A8(
+			_elm_lang$core$Debug$log,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'settings: ',
+				_elm_lang$core$Basics$toString(settings)),
+			_elm_lang$core$Debug$log,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'request: ',
+				_elm_lang$core$Basics$toString(request)),
+			_elm_lang$core$Debug$log,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'task: ',
+				_elm_lang$core$Basics$toString(task)),
+			_elm_lang$core$Debug$log,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'cmd: ',
+				_elm_lang$core$Basics$toString(cmd)),
+			cmd);
 	});
 var _user$project$Api$status = function (config) {
 	return A2(_user$project$Api$call, config, '-x status');
@@ -8664,7 +8795,7 @@ var _user$project$Api$status = function (config) {
 
 var _user$project$State$subscriptions = function (model) {
 	var time = model.config.refresh_seconds * _elm_lang$core$Time$second;
-	return A2(_elm_lang$core$Time$every, time, _user$project$Types$Tick);
+	return _elm_lang$core$Platform_Sub$none;
 };
 var _user$project$State$update = F2(
 	function (action, model) {
@@ -8696,8 +8827,14 @@ var _user$project$State$update = F2(
 								': ',
 								_elm_lang$core$Basics$toString(_p0._0)))),
 					{ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none});
-			default:
+			case 'Command':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Api$status(model.config)
+				};
 		}
 	});
 var _user$project$State$init = function (config) {
@@ -8724,11 +8861,28 @@ var _user$project$View$rootView = function (model) {
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$html$Html$text('SSSap')
+					])),
+				A2(
+				_elm_lang$html$Html$p,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$button,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Events$onClick(_user$project$Types$Test)
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text('Update Status')
+							]))
 					]))
 			]));
 };
 
-var _user$project$App$config = {refresh_seconds: 3, http_host: 'mobius', http_port: 6601};
+var _user$project$App$config = {refresh_seconds: 3, http_host: 'localhost', http_port: 6601};
 var _user$project$App$main = {
 	main: _elm_lang$html$Html_App$program(
 		{

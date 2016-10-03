@@ -1,8 +1,8 @@
 module Api exposing (..)
 
 import Task exposing (..)
+import Http exposing (defaultSettings)
 import Http
-import Json.Decode
 import Types exposing (..)
 
 
@@ -20,20 +20,46 @@ status config =
 call : Config -> String -> Cmd Msg
 call config command =
   let
-    the_url = url config
-    body    = Http.string command
-    decoder = Json.Decode.string
+    settings =
+      { defaultSettings
+      | timeout = 4
+      }
+      -- { timeout = 2
+      -- , desiredResponseType : ...
+      -- , onProgress : ...
+      -- , onStart : ...
+      -- , withCredentials : ...
+      -- }
+    request =
+      { verb = "POST"
+      , url  = url config
+      , body = Http.string command
+      , headers = []
+      }
+    task =
+      Http.send settings request
+    cmd = 
+      task
+      |> Task.perform CallFail (CallSucceed command)
   in
-    Debug.log "call."
-    Http.post decoder the_url body
-    |> Task.perform CallFail (CallSucceed command)
+    Debug.log ("settings: " ++ toString settings)
+    Debug.log ("request: " ++ toString request)
+    Debug.log ("task: " ++ toString task)
+    Debug.log ("cmd: " ++ toString cmd)
+    cmd
+    -- Debug.log "call."
+
+    -- Http.post decoder the_url body
+    -- |> Task.perform CallFail (CallSucceed command)
 
 
-update : String -> String -> Model -> Model
-update command data model =
+update : String -> Http.Response -> Model -> Model
+update command response model =
   case command of
     "-x status" ->
-      Debug.log ("Right -- " ++ data)
+      -- Debug.log ("Right -- " ++ toString data)
       model
+
     _ ->
       model
+

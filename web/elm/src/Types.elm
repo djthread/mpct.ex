@@ -17,6 +17,7 @@ type alias Config =
 
 type Msg =
   Tick Time.Time
-  | CallSucceed String String
-  | CallFail Http.Error
-  | TogglePlaying
+  | CallFail Http.RawError
+  | CallSucceed String Http.Response
+  | Command String
+  | Test
