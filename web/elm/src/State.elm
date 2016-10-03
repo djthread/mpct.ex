@@ -28,8 +28,7 @@ update action model =
         ( model, Cmd.none )
 
     CallFail e ->
-      Debug.log ("Error calling " ++ toString action
-        ++ ": " ++ toString e)
+      Debug.log ("Error calling " ++ toString e)
       ( model, Cmd.none )
 
     Command command ->

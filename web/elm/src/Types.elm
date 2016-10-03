@@ -11,8 +11,8 @@ type alias Model =
 
 type alias Config =
   { refresh_seconds: Float
-  , http_host:       String
-  , http_port:       Int
+  , host:            String
+  , port':           Int
   }
 
 type Msg =

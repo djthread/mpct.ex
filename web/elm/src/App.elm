@@ -9,9 +9,8 @@ import Types exposing (..)
 config : Config
 config =
   { refresh_seconds = 3
-  , http_host       = "localhost"
-  -- , http_host       = "mobius"
-  , http_port       = 6601
+  , host            = "localhost"
+  , port'           = 6601
   }
 
 

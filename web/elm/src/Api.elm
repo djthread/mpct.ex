@@ -8,8 +8,8 @@ import Types exposing (..)
 
 url : Config -> String
 url config =
-  "http://" ++ config.http_host ++ ":"
-    ++ toString config.http_port
+  "http://" ++ config.host ++ ":"
+    ++ toString config.port'
 
 
 status : Config -> Cmd Msg
@@ -20,10 +20,10 @@ status config =
 call : Config -> String -> Cmd Msg
 call config command =
   let
-    settings =
-      { defaultSettings
-      | timeout = 4
-      }
+    settings = defaultSettings
+      -- { defaultSettings
+      -- | timeout = 4
+      -- }
       -- { timeout = 2
       -- , desiredResponseType : ...
       -- , onProgress : ...
@@ -57,7 +57,7 @@ update : String -> Http.Response -> Model -> Model
 update command response model =
   case command of
     "-x status" ->
-      -- Debug.log ("Right -- " ++ toString data)
+      Debug.log ("Right -- " ++ toString response)
       model
 
     _ ->
