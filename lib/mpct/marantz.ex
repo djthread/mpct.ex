@@ -16,7 +16,7 @@ defmodule Mpct.Marantz do
     {:ok, state}
   end
 
-  def call cmd, opts \\ %{} do
+  def call cmd do
     GenServer.call __MODULE__, cmd
   end
 
@@ -53,16 +53,14 @@ defmodule Mpct.Marantz do
     do_send state, 'SICD'
   end
   def handle_call "toggle_power", _from, state do
-    _do_send 'PW?', %{
+    _do_send 'PW?',
       react_fn: fn(info) ->
-        debug inspect(info)
         if to_string(info) =~ ~r/PWR:1/ do
           'PWON'
         else
           'PWSTANDBY'
         end
       end
-    }
 
     {:reply, nil, state}
   end
@@ -72,15 +70,15 @@ defmodule Mpct.Marantz do
   end
 
 
-  defp do_send state, command, opts \\ %{} do
+  defp do_send state, command, opts \\ [] do
     _do_send command, opts
 
     {:reply, nil, state}
   end
 
-  defp _do_send(command, opts) when is_map(opts) do
+  defp _do_send(command, opts) when is_list(opts) do
     opts = opts
-    |> Map.put_new(:react_fn, nil)
+    |> Keyword.put_new(:react_fn, nil)
 
     debug "connecting #{@host |> inspect} #{@port |> inspect}"
 
@@ -89,7 +87,7 @@ defmodule Mpct.Marantz do
         :ok = :gen_tcp.send socket, command ++ '\r\n'
 
         socket =
-          if func = Map.get opts, :react_fn do
+          if func = Keyword.get opts, :react_fn do
             debug "reading"
             {:ok, msg} = :gen_tcp.recv socket, 0
             if followup_cmd = func.(msg) do
