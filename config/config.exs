@@ -19,8 +19,12 @@ config :logger, :console,
   metadata: [:request_id]
 
 config :mpct, Mpct.Marantz,
-  host: '192.168.0.180',
+  host: "192.168.0.180",
   port: 23
+
+config :mpct, Mpct.Mpd,
+  host: "localhost",
+  port: 6600
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

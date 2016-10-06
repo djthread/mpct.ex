@@ -1,15 +1,15 @@
 defmodule Mpct.Marantz do
   use GenServer
-  require Logger
+  use LabeledLogger, label: "Marantz"
 
   @initial_state %{}
 
   @config Application.get_env(:mpct, Mpct.Marantz)
-  @host   @config |> Keyword.get(:host)
+  @host   @config |> Keyword.get(:host) |> to_char_list
   @port   @config |> Keyword.get(:port)
 
   def start_link do
-    GenServer.start_link __MODULE__, @initial_state, name: __MODULE__
+    GenServer.start_link(__MODULE__, @initial_state, name: __MODULE__)
   end
 
   def init(state) do
@@ -17,7 +17,7 @@ defmodule Mpct.Marantz do
   end
 
   def call cmd do
-    GenServer.call __MODULE__, cmd
+    GenServer.call(__MODULE__, cmd)
   end
 
   # def toggle_power, do: call :toggle_power
@@ -26,34 +26,34 @@ defmodule Mpct.Marantz do
   # def vol(num),     do: call :down
 
 
-  def handle_call {"vol", "up"}, _from, state do
-    do_send state, 'MVUP'
+  def handle_call({"vol", "up"}, _from, state) do
+    do_send(state, 'MVUP')
   end
-  def handle_call {"vol", "down"}, _from, state do
-    do_send state, 'MVDOWN'
+  def handle_call({"vol", "down"}, _from, state) do
+    do_send(state, 'MVDOWN')
   end
-  def handle_call {"vol", num}, _from, state do
+  def handle_call({"vol", num}, _from, state) do
     true = num =~ ~r/\d\d/
-    do_send state, 'MV' ++ num
+    do_send(state, 'MV') ++ num
   end
 
-  def handle_call {"input", "mobius"}, _from, state do
-    do_send state, 'SIBD'
+  def handle_call({"input", "mobius"}, _from, state) do
+    do_send(state, 'SIBD')
   end
-  def handle_call {"input", "optical"}, _from, state do
-    do_send state, 'SIDVD'
+  def handle_call({"input", "optical"}, _from, state) do
+    do_send(state, 'SIDVD')
   end
-  def handle_call {"input", "bluray"}, _from, state do
-    do_send state, 'SIBD'
+  def handle_call({"input", "bluray"}, _from, state) do
+    do_send(state, 'SIBD')
   end
-  def handle_call {"input", "ccast"}, _from, state do
-    do_send state, 'SIMPLAY'
+  def handle_call({"input", "ccast"}, _from, state) do
+    do_send(state, 'SIMPLAY')
   end
-  def handle_call {"input", "mini"}, _from, state do
-    do_send state, 'SICD'
+  def handle_call({"input", "mini"}, _from, state) do
+    do_send(state, 'SICD')
   end
-  def handle_call "toggle_power", _from, state do
-    _do_send 'PW?',
+  def handle_call("toggle_power", _from, state) do
+    _do_send('PW?',
       react_fn: fn(info) ->
         if to_string(info) =~ ~r/PWR:1/ do
           'PWON'
@@ -61,6 +61,7 @@ defmodule Mpct.Marantz do
           'PWSTANDBY'
         end
       end
+    )
 
     {:reply, nil, state}
   end
@@ -71,7 +72,7 @@ defmodule Mpct.Marantz do
 
 
   defp do_send state, command, opts \\ [] do
-    _do_send command, opts
+    _do_send(command, opts)
 
     {:reply, nil, state}
   end
@@ -82,20 +83,20 @@ defmodule Mpct.Marantz do
 
     debug "connecting #{@host |> inspect} #{@port |> inspect}"
 
-    case :gen_tcp.connect @host, @port, [:list, active: false] do
+    case :gen_tcp.connect(@host, @port, [:list, active: false]) do
       {:ok, socket} ->
-        :ok = :gen_tcp.send socket, command ++ '\r\n'
+        :ok = :gen_tcp.send(socket, command ++ '\r\n')
 
         socket =
-          if func = Keyword.get opts, :react_fn do
+          if func = Keyword.get(opts, :react_fn) do
             debug "reading"
-            {:ok, msg} = :gen_tcp.recv socket, 0
+            {:ok, msg} = :gen_tcp.recv(socket, 0)
             if followup_cmd = func.(msg) do
               debug "followup_cmd: #{followup_cmd}"
-              :ok = :gen_tcp.close socket
-              :timer.sleep 100
-              {:ok, socket} = :gen_tcp.connect @host, @port, [:list, active: false]
-              :ok = :gen_tcp.send socket, followup_cmd ++ '\r\n'
+              :ok = :gen_tcp.close(socket)
+              :timer.sleep(100)
+              {:ok, socket} = :gen_tcp.connect(@host, @port, [:list, active: false])
+              :ok = :gen_tcp.send(socket, followup_cmd ++ '\r\n')
               socket
             else
               socket
@@ -103,18 +104,13 @@ defmodule Mpct.Marantz do
           end
 
         debug "done"
-        :ok = :gen_tcp.close socket
+        :ok = :gen_tcp.close(socket)
 
         true
 
       fail ->
         warn "No good: #{fail |> inspect}"
         false
-
     end
   end
-
-  defp info(str),  do: Logger.info  "Marantz: #{str}"
-  defp warn(str),  do: Logger.warn  "Marantz: #{str}"
-  defp debug(str), do: Logger.debug "Marantz: #{str}"
 end
