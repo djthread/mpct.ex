@@ -1,7 +1,7 @@
 defmodule Mpct.Mpd do
   use Connection
   use LabeledLogger, label: "Mpd"
-  alias Mpct.Marantz.Status
+  alias Mpct.Mpd.Status
 
   @initial_state %{
     socket: nil
@@ -32,7 +32,7 @@ defmodule Mpct.Mpd do
     end
   end
 
-  def status, do: call 'status', [transform_fn: &parse_status/1]
+  def status, do: call 'status', [transform_fn: &Status.parse/1]
 
   def call(cmd, opts \\ []) do
     GenServer.call(__MODULE__, {cmd, opts})
@@ -46,15 +46,38 @@ defmodule Mpct.Mpd do
 
     {:ok, msg} = :gen_tcp.recv(socket, 0)
 
-    if func = Keyword.get(opts, :transform_fn) do
-      msg = apply(func, [msg])
+    case msg
+      |> to_string
+      |> String.split("\n", trim: true)
+      |> process
+    do
+      {:ok, lines} ->
+        if func = Keyword.get(opts, :transform_fn) do
+          msg = apply(func, [lines])
+        end
+
+        {:reply, msg, state}
+
+      {:error, thing, command, message} ->
+        {:reply, "[#{thing}] {#{command}} #{message}", state}
+
     end
-
-    {:reply, msg, state}
   end
 
-  defp parse_status(str) do
-    debug "parse_status on: #{str}"
-    str
+  defp process(lines) do
+    [status | tail] = lines |> Enum.reverse
+
+    case status do
+      "OK" ->
+        {:ok, tail |> Enum.reverse}
+
+      "ACK " <> stuff ->
+        [_, thing, command, message] =
+          ~r/\[(\d+@\d+)\] \{([^}]*)\} (.+)$/
+          |> Regex.run(stuff)
+
+        {:error, thing, command, message}
+    end
   end
+
 end
