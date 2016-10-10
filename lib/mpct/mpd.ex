@@ -4,28 +4,29 @@ defmodule Mpct.Mpd do
   alias Mpct.Mpd.Status
 
   @initial_state %{
-    socket: nil
+    host:    nil,
+    port:    nil,
+    socket:  nil,
+    version: nil
   }
 
-  @config Application.get_env(:mpct, Mpct.Mpd)
-  @host   @config |> Keyword.get(:host) |> to_char_list
-  @port   @config |> Keyword.get(:port)
-
-  def start_link do
-    Connection.start_link(__MODULE__, @initial_state, name: __MODULE__)
+  def start_link(host, port) do
+    state = %{@initial_state | host: host, port: port}
+    Connection.start_link(__MODULE__, state, name: __MODULE__)
   end
 
   def init(state) do
     {:connect, nil, state}
   end
 
-  def connect(_info, state) do
-    debug "connecting #{@host |> inspect} #{@port |> inspect}"
+  def connect(_info, state = %{host: host, port: port}) do
+    debug "Connecting #{host |> inspect} #{port |> inspect}"
 
-    case :gen_tcp.connect(@host, @port, [:list, active: :once]) do
+    case :gen_tcp.connect(host, port, [:list, active: :false]) do
       {:ok, socket} ->
-        debug "connected."
-        {:ok, %{state | socket: socket}}
+        debug "Connected."
+        {:ok, version} = :gen_tcp.recv(socket, 0)
+        {:ok, %{state | socket: socket, version: version}}
       {:error, reason} ->
         warn "MPD connection error: #{inspect reason}"
         {:backoff, 1000, state}  # try again in one second
@@ -44,22 +45,23 @@ defmodule Mpct.Mpd do
 
     :ok = :gen_tcp.send(socket, "#{cmd}\n")
 
-    {:ok, msg} = :gen_tcp.recv(socket, 0)
+    {:ok, msg} = do_recv(socket)
 
     case msg
-      |> to_string
       |> String.split("\n", trim: true)
       |> process
     do
-      {:ok, lines} ->
-        if func = Keyword.get(opts, :transform_fn) do
-          msg = apply(func, [lines])
-        end
+      {:ok, msg} ->
+        msg =
+          case Keyword.get(opts, :transform_fn) do
+            nil  -> msg
+            func -> apply(func, [msg])
+          end
 
-        {:reply, msg, state}
+        {:reply, {:ok, msg}, state}
 
       {:error, thing, command, message} ->
-        {:reply, "[#{thing}] {#{command}} #{message}", state}
+        {:reply, {:error, "[#{thing}] {#{command}} #{message}"}, state}
 
     end
   end
@@ -77,6 +79,16 @@ defmodule Mpct.Mpd do
           |> Regex.run(stuff)
 
         {:error, thing, command, message}
+    end
+  end
+
+  defp do_recv(socket, str \\ "") do
+    with false <- ~r/(OK|ACK .+)\n$/ |> Regex.match?(str),
+      {:ok, new_str} <- :gen_tcp.recv(socket, 0)
+    do
+      do_recv(socket, str <> to_string(new_str))
+    else
+      true -> {:ok, str}
     end
   end
 

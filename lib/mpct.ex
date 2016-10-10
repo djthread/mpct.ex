@@ -1,13 +1,17 @@
 defmodule Mpct do
   use Application
 
+  @host Application.get_env(:mpct, :host) |> to_char_list
+  @port Application.get_env(:mpct, :port)
+
   def start(_type, _args) do
     import Supervisor.Spec
 
     children = [
       supervisor(Mpct.Endpoint, []),
       # worker(Mpct.Marantz, []),
-      worker(Mpct.Mpd, [])
+      worker(Mpct.Mpd, [@host, @port]),
+      worker(Mpct.Worker, [])
     ]
 
     opts = [strategy: :one_for_one, name: Mpct.Supervisor]
