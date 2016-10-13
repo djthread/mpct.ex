@@ -15,7 +15,9 @@ defmodule Mpct.Mpd.Status do
   end
 
   for bit <- @bits do
-    defp do_parse(["#{unquote(bit |> to_string)}: " <> data | tail], st = %Status{}) do
+    defp do_parse(
+      ["#{unquote(bit |> to_string)}: " <> data | tail], st = %Status{})
+    do
       do_parse(tail, st |> Map.put(unquote(bit), data))
     end
   end

@@ -1,6 +1,6 @@
 defmodule Mpct.Worker do
   use GenServer
-  use LabeledLogger, label: "Interface"
+  use LabeledLogger, label: "Worker"
   alias Mpct.Mpd
 
   @type state :: Map.t
