@@ -10,7 +10,7 @@ defmodule Mpct.Worker do
   @type ok_or_error :: ok_and_state | error_and_reason
 
   @initial_state %{
-    tasks:  [],
+    tasks:  [:load_albums],
     albums: []
   }
 
@@ -43,7 +43,12 @@ defmodule Mpct.Worker do
 
   @spec flush_tasks(state) :: state
   defp flush_tasks(state = %{tasks: [task | tasks]}) do
-    state = do_task(task, state)
+    state =
+      case do_task(task, state) do
+        {:ok, state} -> state
+        {:error, reason} -> raise reason
+      end
+
     %{state | tasks: tasks}
   end
   defp flush_tasks(state = %{tasks: []}) do
@@ -59,7 +64,7 @@ defmodule Mpct.Worker do
         |> Enum.map(&Regex.replace(~r/^Album: /, &1, ""))
         |> Enum.filter(&(&1 != ""))
 
-      info "Loaded #{length state.albums} albums"
+      info "Loaded #{length albums} albums"
 
       {:ok, %{state | albums: albums}}
     end
