@@ -1,7 +1,7 @@
 defmodule Mpct.Mpd do
   use Connection
   use LabeledLogger, label: "Mpd"
-  alias Mpct.Mpd.Status
+  alias Mpct.{Mpd, Mpd.Status}
 
   @initial_state %{
     host:    nil,
@@ -35,7 +35,12 @@ defmodule Mpct.Mpd do
 
   def status, do: call 'status', [transform_fn: &Status.parse/1]
 
-  def call(cmd, opts \\ []) do
+  def call(command, opts \\ [])
+  def call({:find_album, album}, opts) do
+    {:ok, lines} = call("find album #{album}")
+    lines |> Mpd.File.parse_files
+  end
+  def call(cmd, opts) do
     GenServer.call(__MODULE__, {cmd, opts})
   end
 

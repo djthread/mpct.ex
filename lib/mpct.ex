@@ -24,9 +24,6 @@ defmodule Mpct do
     :ok
   end
 
-  @callback invoke(Module.command, Module.parameters, Worker.state) ::
-    Module.invoke_return
-  def invoke(command, parameters, state) do
-    Mpct.Worker.invoke(command, parameters, state)
-  end
+  @callback invoke(Module.command) :: {:ok, String.t} | {:error, String.t}
+  def invoke(command), do: Mpct.Worker.invoke(command)
 end
