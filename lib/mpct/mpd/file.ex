@@ -1,8 +1,19 @@
 defmodule Mpct.Mpd.File do
   alias Mpct.Mpd.File
 
-  defstruct [:file, :last_modified, :time, :artist,
-             :album, :title, :track, :date]
+  defstruct [
+    file:          nil,
+    last_modified: nil,
+    time:          nil,
+    artist:        nil,
+    album:         nil,
+    title:         nil,
+    track:         nil,
+    date:          nil,
+    genre:         nil,
+    album_artist:  nil,
+    extra:         %{}
+  ]
 
   def parse_files([line | lines], current \\ %File{}, files \\ []) do
     [_, key, value] = Regex.run(~r/^(.+?): (.*)$/, line)
@@ -17,6 +28,9 @@ defmodule Mpct.Mpd.File do
         "Title"         -> :title
         "Track"         -> :track
         "Date"          -> :date
+        "Genre"         -> :genre
+        "AlbumArtist"   -> :album_artists
+        label           -> nil
       end
 
     {current, files} =
@@ -24,7 +38,13 @@ defmodule Mpct.Mpd.File do
         :file ->
           {%File{file: value}, files ++ [current]}
         _ ->
-          {Map.put(current, file_key, value), files}
+          case file_key do
+            nil ->
+              extra = Map.put(current.extra, key, value)
+              {Map.put(current, :extra, extra), files}
+            fk ->
+              {Map.put(current, fk, value), files}
+          end
       end
 
     parse_files(lines, current, files)

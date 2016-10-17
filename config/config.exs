@@ -22,7 +22,7 @@ config :mpct, Mpct.Marantz,
   host: "192.168.0.180",
   port: 23
 
-config :mpct, :host, "localhost"
+config :mpct, :host, "192.168.0.10"
 config :mpct, :port, 6600
 config :mpct, :modules, [
   Mpct.Module.RandomTracks

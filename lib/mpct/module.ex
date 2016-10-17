@@ -18,7 +18,8 @@ defmodule Mpct.Module do
         {:ok, Worker.state} | {:error, String.t}
       def init(state), do: {:ok, state}
 
-      @callback invoke(Module.command, Worker.state) :: Module.invoke_return
+      @callback invoke(Module.command, Worker.state) ::
+        Module.invoke_return
       def invoke(_command, state), do: {:unknown, state}
 
       defoverridable init: 1, invoke: 2

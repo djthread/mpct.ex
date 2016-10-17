@@ -56,13 +56,19 @@ defmodule Mpct.Worker do
     | {:reply, {:error, String.t}, state}
   defp handle_invoke([module | modules], command, state) do
     case apply(module, :invoke, [command, state]) do
-      {:ok, message, st}    -> {:reply, {:ok, message}, st}
-      {:error, message, st} -> {:reply, {:error, message}, st}
-      :unhandled            -> handle_invoke(modules, command, state)
+      {:ok, message, st} ->
+        {:reply, {:ok, message}, st}
+      {:error, message, st} ->
+        {:reply, {:error, message}, st}
+      :unhandled ->
+        handle_invoke(modules, command, state)
     end
   end
   defp handle_invoke([], command, state) do
-    {:reply, {:error, "Unknown command: #{command |> inspect}"}, state}
+    { :reply,
+      {:error, "Unknown command: #{command |> inspect}"},
+      state
+    }
   end
 
   @spec flush_tasks(state) :: state

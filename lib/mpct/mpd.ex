@@ -37,7 +37,7 @@ defmodule Mpct.Mpd do
 
   def call(command, opts \\ [])
   def call({:find_album, album}, opts) do
-    {:ok, lines} = call("find album #{album}")
+    {:ok, lines} = call("find album \"#{album}\"")
     lines |> Mpd.File.parse_files
   end
   def call(cmd, opts) do
@@ -72,7 +72,7 @@ defmodule Mpct.Mpd do
   end
 
   defp process(lines) do
-    [status | tail] = lines |> Enum.reverse
+    [status | tail] = lines |> Enum.reverse |> Enum.map(&to_string/1)
 
     case status do
       "OK" ->
