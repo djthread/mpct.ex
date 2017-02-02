@@ -3,7 +3,7 @@ defmodule Mpct.Module.RandomTracks do
 
   def invoke({:random_tracks, opts},
              state = %{albums: albums}) do
-    :random.seed(:erlang.now)
+    :rand.seed(:erlang.system_time())
 
     count = Keyword.get(opts, :count, 10)
     dir   = Keyword.get(opts, :dir,   nil)
@@ -18,6 +18,7 @@ defmodule Mpct.Module.RandomTracks do
   def invoke(_, _), do: :unhandled
 
   defp get_files(count, dir, albums, acc \\ [])
+  defp get_files(count, dir, albums, acc)
   when count > 0 do
     file =
       case dir do

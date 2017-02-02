@@ -1,8 +1,7 @@
 defmodule Mpct do
   use Application
-  alias Mpct.{Module, Worker}
 
-  @host Application.get_env(:mpct, :host) |> to_char_list
+  @host Application.get_env(:mpct, :host) |> to_char_list()
   @port Application.get_env(:mpct, :port)
 
   def start(_type, _args) do
@@ -24,6 +23,6 @@ defmodule Mpct do
     :ok
   end
 
-  @callback invoke(Module.command) :: {:ok, String.t} | {:error, String.t}
+  @callback invoke(Mpct.Module.command) :: {:ok, String.t} | {:error, String.t}
   def invoke(command), do: Mpct.Worker.invoke(command)
 end

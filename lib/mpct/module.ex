@@ -12,7 +12,7 @@ defmodule Mpct.Module do
       use LabeledLogger, label: unquote(label)
       alias Mpct.{Module, Mpd, Worker}
 
-      @behaviour Mpct.Module
+      # @behaviour Mpct.Module
 
       @callback init(Worker.state) ::
         {:ok, Worker.state} | {:error, String.t}

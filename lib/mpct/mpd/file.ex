@@ -15,7 +15,8 @@ defmodule Mpct.Mpd.File do
     extra:         %{}
   ]
 
-  def parse_files([line | lines], current \\ %File{}, files \\ []) do
+  def parse_files(lines, current \\ %File{}, files \\ [])
+  def parse_files([line | lines], current, files) do
     [_, key, value] = Regex.run(~r/^(.+?): (.*)$/, line)
 
     file_key =
